@@ -1,4 +1,4 @@
-import { sql } from '@vercel/postgres';
+import { sql} from '@vercel/postgres';
 import {
   CustomerField,
   CustomersTableType,
@@ -10,20 +10,19 @@ import {
 } from './definitions';
 import { formatCurrency } from './utils';
 
-export async function fetchRevenue() {
-  // Add noStore() here prevent the response from being cached.
-  // This is equivalent to in fetch(..., {cache: 'no-store'}).
 
+export async function fetchRevenue() {
+  // Add  here prevent the response from being cached.
+  // This is equivalent to in fetch(..., {cache: 'no-store'}).
+  
   try {
     // Artificially delay a response for demo purposes.
     // Don't do this in production :)
 
-    // console.log('Fetching revenue data...');
-    // await new Promise((resolve) => setTimeout(resolve, 3000));
-
+    console.log('Fetching revenue data...');
+    await new Promise((resolve) => setTimeout(resolve, 3000));
     const data = await sql<Revenue>`SELECT * FROM revenue`;
-
-    // console.log('Data fetch completed after 3 seconds.');
+    console.log('Data fetch completed after 3 seconds.');
 
     return data.rows;
   } catch (error) {
@@ -33,6 +32,7 @@ export async function fetchRevenue() {
 }
 
 export async function fetchLatestInvoices() {
+  
   try {
     const data = await sql<LatestInvoiceRaw>`
       SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
@@ -40,7 +40,6 @@ export async function fetchLatestInvoices() {
       JOIN customers ON invoices.customer_id = customers.id
       ORDER BY invoices.date DESC
       LIMIT 5`;
-
     const latestInvoices = data.rows.map((invoice) => ({
       ...invoice,
       amount: formatCurrency(invoice.amount),
@@ -53,6 +52,7 @@ export async function fetchLatestInvoices() {
 }
 
 export async function fetchCardData() {
+  
   try {
     // You can probably combine these into a single SQL query
     // However, we are intentionally splitting them to demonstrate
@@ -63,7 +63,6 @@ export async function fetchCardData() {
          SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS "paid",
          SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending"
          FROM invoices`;
-
     const data = await Promise.all([
       invoiceCountPromise,
       customerCountPromise,
@@ -92,6 +91,8 @@ export async function fetchFilteredInvoices(
   query: string,
   currentPage: number,
 ) {
+  
+
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
@@ -124,6 +125,8 @@ export async function fetchFilteredInvoices(
 }
 
 export async function fetchInvoicesPages(query: string) {
+  
+
   try {
     const count = await sql`SELECT COUNT(*)
     FROM invoices
@@ -145,6 +148,8 @@ export async function fetchInvoicesPages(query: string) {
 }
 
 export async function fetchInvoiceById(id: string) {
+  
+
   try {
     const data = await sql<InvoiceForm>`
       SELECT
@@ -178,7 +183,6 @@ export async function fetchCustomers() {
       FROM customers
       ORDER BY name ASC
     `;
-
     const customers = data.rows;
     return customers;
   } catch (err) {
